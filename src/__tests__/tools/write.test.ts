@@ -4,7 +4,7 @@ import { readFileSync, unlinkSync, mkdirSync, rmdirSync, existsSync } from 'fs';
 import { join } from 'path';
 
 describe('WriteFileTool', () => {
-  const testDir = join(process.cwd(), '__test_temp__');
+  const testDir = join(process.cwd(), '__test_temp_write__');
   const testFile = join(testDir, 'write-test.txt');
   let writeTool: WriteFileTool;
 
