@@ -63,7 +63,11 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "dist",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "!dist/**/*.test.*",
+    "!dist/__tests__",
+    "!dist/binaries",
     "README.md",
     "LICENSE"
   ]
