@@ -38,7 +38,16 @@ export function getProviderModels(provider: string): string[] {
         'claude-opus-4-20250514',
       ];
     case 'openai':
-      return ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'];
+      return [
+        'gpt-5',
+        'gpt-5-mini',
+        'gpt-5-nano',
+        'gpt-5.1',
+        'gpt-5.1-mini',
+        'gpt-5.1-nano',
+        'gpt-4o',
+        'gpt-4o-mini',
+      ];
     case 'gemini':
       return [
         'gemini-2.0-flash',
