@@ -4,7 +4,7 @@ import { writeFileSync, unlinkSync, mkdirSync, rmdirSync } from 'fs';
 import { join } from 'path';
 
 describe('GrepTool', () => {
-  const testDir = join(process.cwd(), '__test_temp__');
+  const testDir = join(process.cwd(), '__test_temp_grep__');
   const testFile1 = join(testDir, 'file1.ts');
   let grepTool: GrepTool;
 

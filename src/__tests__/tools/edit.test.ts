@@ -4,7 +4,7 @@ import { writeFileSync, readFileSync, unlinkSync, mkdirSync, rmdirSync } from 'f
 import { join } from 'path';
 
 describe('EditFileTool', () => {
-  const testDir = join(process.cwd(), '__test_temp__');
+  const testDir = join(process.cwd(), '__test_temp_edit__');
   const testFile = join(testDir, 'edit-test.txt');
   let editTool: EditFileTool;
 

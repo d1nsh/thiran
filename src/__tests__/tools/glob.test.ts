@@ -4,7 +4,7 @@ import { writeFileSync, unlinkSync, mkdirSync, rmdirSync } from 'fs';
 import { join } from 'path';
 
 describe('GlobTool', () => {
-  const testDir = join(process.cwd(), '__test_temp__');
+  const testDir = join(process.cwd(), '__test_temp_glob__');
   let globTool: GlobTool;
 
   beforeEach(() => {
