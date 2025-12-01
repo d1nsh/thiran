@@ -91,6 +91,17 @@ export interface LLMProvider {
   supportsTools(): boolean;
 }
 
+// MCP Server configuration
+export interface MCPServerConfig {
+  name: string;                    // Unique identifier for the server
+  command: string;                 // Command to run (for stdio transport)
+  args?: string[];                 // Command arguments
+  env?: Record<string, string>;    // Environment variables for the process
+  transport: 'stdio';              // Transport type (stdio only for now)
+  enabled?: boolean;               // Whether server is enabled (default: true)
+  timeout?: number;                // Connection timeout in ms (default: 30000)
+}
+
 export interface ThiranConfig {
   provider: string;
   model?: string;
@@ -111,6 +122,9 @@ export interface ThiranConfig {
   // Security
   allowedPaths: string[];
   blockedCommands: string[];
+
+  // MCP Servers
+  mcpServers?: MCPServerConfig[];
 }
 
 export enum ApprovalMode {

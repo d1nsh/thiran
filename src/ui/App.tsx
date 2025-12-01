@@ -4,6 +4,7 @@ import { Spinner, ToolCallDisplay, PermissionPrompt, MarkdownText, Banner, Autoc
 import type { ToolCall, PermissionAction, ThiranConfig } from '../types.js';
 import type { Agent, AgentCallbacks } from '../core/agent.js';
 import { listProviders, getProviderModels, OllamaProvider } from '../providers/index.js';
+import type { MCPClientManager } from '../mcp/index.js';
 
 interface AppProps {
   agentRef: { current: Agent };
@@ -13,6 +14,7 @@ interface AppProps {
     action: PermissionAction
   ) => Promise<{ allow: boolean; remember: boolean }>;
   onConfigChange: (newConfig: Partial<ThiranConfig>) => void;
+  mcpManager?: MCPClientManager;
 }
 
 interface ToolCallState {
@@ -82,6 +84,7 @@ export const App: React.FC<AppProps> = ({
   config,
   onPermissionRequest,
   onConfigChange,
+  mcpManager,
 }) => {
   const { exit } = useApp();
   const { write } = useStdout();
@@ -146,6 +149,10 @@ export const App: React.FC<AppProps> = ({
   /models            - Select a model for current provider
   /providers         - Select a provider
   /search <query>    - Search for Ollama models (e.g., /search coder)
+  /mcp [subcommand]  - Manage MCP servers
+    /mcp             - List all MCP servers and status
+    /mcp tools       - List all available MCP tools
+    /mcp reconnect   - Reconnect to all MCP servers
   /clear             - Clear conversation history
   /exit, /quit       - Exit Thiran`,
         };
@@ -242,13 +249,86 @@ export const App: React.FC<AppProps> = ({
         exit();
         return { handled: true };
 
+      case 'mcp': {
+        if (!mcpManager) {
+          return {
+            handled: true,
+            message: 'MCP is not initialized. No MCP servers configured.',
+          };
+        }
+
+        const subCommand = args[0]?.toLowerCase();
+
+        switch (subCommand) {
+          case 'tools': {
+            const tools = mcpManager.getMCPTools();
+            if (tools.length === 0) {
+              return {
+                handled: true,
+                message: 'No MCP tools available. Check server connections with /mcp',
+              };
+            }
+            const toolList = tools
+              .map((t) => `  ${t.serverName}/${t.name} - ${t.description.slice(0, 60)}${t.description.length > 60 ? '...' : ''}`)
+              .join('\n');
+            return {
+              handled: true,
+              message: `MCP Tools (${tools.length}):\n${toolList}`,
+            };
+          }
+
+          case 'reconnect': {
+            setShowInput(false);
+            addMessage({ type: 'system', content: 'Reconnecting to MCP servers...' });
+            mcpManager.reconnectAll().then(() => {
+              const statuses = mcpManager.getAllServerStatus();
+              const connected = statuses.filter((s) => s.connected).length;
+              addMessage({
+                type: 'system',
+                content: `Reconnected: ${connected}/${statuses.length} servers online`,
+              });
+              setShowInput(true);
+            }).catch((err) => {
+              addMessage({ type: 'system', content: `Reconnect failed: ${err.message}` });
+              setShowInput(true);
+            });
+            return { handled: true };
+          }
+
+          case 'list':
+          case undefined:
+          default: {
+            const statuses = mcpManager.getAllServerStatus();
+            if (statuses.length === 0) {
+              return {
+                handled: true,
+                message: 'No MCP servers configured. Add servers to your config file.',
+              };
+            }
+            const statusList = statuses
+              .map((s) => {
+                const statusIcon = s.connected ? '\u2713' : '\u2717';
+                const toolInfo = s.connected
+                  ? ` (${s.toolCount} tools)`
+                  : ` (${s.error || 'disconnected'})`;
+                return `  ${statusIcon} ${s.name}${toolInfo}`;
+              })
+              .join('\n');
+            return {
+              handled: true,
+              message: `MCP Servers:\n${statusList}`,
+            };
+          }
+        }
+      }
+
       default:
         return {
           handled: false,
           message: `Unknown command: /${cmd}\nType /help for available commands`,
         };
     }
-  }, [currentProvider, currentModel, agentRef, exit, onConfigChange]);
+  }, [currentProvider, currentModel, agentRef, exit, onConfigChange, mcpManager, addMessage]);
 
   const handleSubmit = useCallback(
     async (query: string) => {
