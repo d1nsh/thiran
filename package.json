@@ -13,12 +13,7 @@
     "start": "node dist/cli/index.js",
     "lint": "eslint src/",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "prepublishOnly": "npm run build && npm test",
-    "package": "npm run build && pkg . --out-path dist/binaries",
-    "package:all": "npm run build && npm run package:linux && npm run package:macos && npm run package:win",
-    "package:linux": "pkg . --targets node18-linux-x64 --output dist/binaries/linux/thiran",
-    "package:macos": "pkg . --targets node18-macos-x64 --output dist/binaries/macos/thiran",
-    "package:win": "pkg . --targets node18-win-x64 --output dist/binaries/win/thiran.exe"
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "ai",
@@ -60,25 +55,12 @@
     "@types/jest": "^29.5.12",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
-    "@yao-pkg/pkg": "^6.10.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
     "typescript": "^5.6.3"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "pkg": {
-    "scripts": "dist/**/*.js",
-    "assets": [
-      "package.json"
-    ],
-    "targets": [
-      "node18-linux-x64",
-      "node18-macos-x64",
-      "node18-win-x64"
-    ],
-    "outputPath": "dist/binaries"
   },
   "files": [
     "dist",

@@ -1,303 +1,231 @@
 # Distributing Thiran
 
-Guide for distributing Thiran as a binary for users to download and use.
+Guide for distributing Thiran to end users through multiple channels.
+
+## Supported Distribution Methods
+
+1. **npm** - Global package installation (all platforms)
+2. **Homebrew** - Native macOS installation
+3. **Binaries** - Standalone executables (planned, see Known Issues)
+
+---
 
 ## Option 1: npm Package (Recommended)
 
-The easiest and most common way to distribute Node.js CLI tools.
+The primary distribution method for Node.js CLI tools. Works on all platforms.
 
-### Steps to Publish
+### Initial Setup
 
-1. **Ensure package.json is ready:**
-   - Version number is set
-   - Name, description, keywords are accurate
-   - `bin` field points to executable
-   - All dependencies are listed
-
-2. **Create npm account:**
+1. **Create npm account:**
    ```bash
    npm adduser
    # Or login if you have an account
    npm login
    ```
 
-3. **Publish to npm:**
+### Publishing
+
+1. **Ensure everything is ready:**
    ```bash
+   # Run tests
+   npm test
+
    # Build the project
    npm run build
+   ```
 
-   # Publish (public package)
+2. **Publish to npm:**
+   ```bash
+   # First publish
    npm publish --access public
    ```
 
-4. **Users install with:**
+3. **Users install with:**
    ```bash
-   # Global installation
    npm install -g thiran
-
-   # Then use it
    thiran "your prompt here"
    ```
 
 ### Version Updates
 
 ```bash
-# Bump version and publish
-npm version patch  # 0.1.0 -> 0.1.1
-npm version minor  # 0.1.0 -> 0.2.0
-npm version major  # 0.1.0 -> 1.0.0
+# Bump version (automatically commits and tags)
+npm version patch  # 0.1.0 -> 0.1.1 (bug fixes)
+npm version minor  # 0.1.0 -> 0.2.0 (new features)
+npm version major  # 0.1.0 -> 1.0.0 (breaking changes)
 
+# Publish the new version
 npm publish
+
+# Push tags to git
+git push && git push --tags
+```
+
+### Unpublishing (if needed)
+
+```bash
+# Unpublish a specific version (within 72 hours)
+npm unpublish thiran@0.1.0
+
+# Deprecate instead of unpublishing (preferred)
+npm deprecate thiran@0.1.0 "Please upgrade to 0.1.1"
 ```
 
 ---
 
-## Option 2: Standalone Binaries with pkg
+## Option 2: Homebrew (macOS)
 
-Create platform-specific executables (no Node.js required).
+Native package manager experience for macOS users. Requires npm package to be published first.
 
-### Setup
+### Initial Setup
 
-```bash
-# Install pkg
-npm install -g pkg
-```
+The Homebrew formula is in `Formula/thiran.rb`. Users can install directly from this repository.
 
-### Create package.json scripts:
+### Publishing Process
 
-```json
-{
-  "scripts": {
-    "build": "tsc",
-    "package": "pkg . --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --output dist/binaries/thiran"
-  },
-  "bin": "./dist/cli/index.js",
-  "pkg": {
-    "assets": [
-      "dist/**/*"
-    ],
-    "outputPath": "dist/binaries"
-  }
-}
-```
+1. **Publish to npm first** (see Option 1)
 
-### Build binaries:
+2. **Get the tarball SHA256:**
+   ```bash
+   # Download the npm tarball
+   curl -L https://registry.npmjs.org/thiran/-/thiran-0.1.0.tgz -o thiran.tgz
 
-```bash
-# Build TypeScript first
-npm run build
+   # Calculate SHA256
+   shasum -a 256 thiran.tgz
+   ```
 
-# Create binaries for all platforms
-pkg . --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --output dist/binaries/thiran
+3. **Update Formula/thiran.rb:**
+   ```ruby
+   url "https://registry.npmjs.org/thiran/-/thiran-0.1.0.tgz"
+   sha256 "abc123..." # paste the SHA256 from above
+   ```
 
-# This creates:
-# - dist/binaries/thiran-linux
-# - dist/binaries/thiran-macos
-# - dist/binaries/thiran-win.exe
-```
+4. **Test locally:**
+   ```bash
+   brew install --build-from-source Formula/thiran.rb
+   thiran --help
+   brew uninstall thiran
+   ```
 
-### Users download and use:
+5. **Commit and push:**
+   ```bash
+   git add Formula/thiran.rb
+   git commit -m "Update Homebrew formula to v0.1.0"
+   git push
+   ```
+
+### Users Install With
 
 ```bash
-# Linux/macOS
-chmod +x thiran-linux
-./thiran-linux "your prompt"
+# Install from this repository
+brew install d1nsh/thiran/thiran
 
-# Windows
-thiran-win.exe "your prompt"
-```
-
----
-
-## Option 3: GitHub Releases with Binaries
-
-Combine pkg with GitHub Releases for easy distribution.
-
-### 1. Create binaries (see Option 2)
-
-### 2. Create GitHub Release:
-
-```bash
-# Tag a release
-git tag -a v0.1.0 -m "Release v0.1.0"
-git push origin v0.1.0
-
-# Use GitHub CLI to create release
-gh release create v0.1.0 \
-  dist/binaries/thiran-linux \
-  dist/binaries/thiran-macos \
-  dist/binaries/thiran-win.exe \
-  --title "Thiran v0.1.0" \
-  --notes "Release notes here"
-```
-
-### 3. Users download from:
-`https://github.com/d1nsh/thiran/releases`
-
----
-
-## Option 4: Docker Image
-
-Package as a Docker container.
-
-### Create Dockerfile:
-
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY dist ./dist
-
-ENTRYPOINT ["node", "dist/cli/index.js"]
-```
-
-### Build and publish:
-
-```bash
-# Build
-docker build -t thiran:latest .
-
-# Tag for Docker Hub
-docker tag thiran:latest yourusername/thiran:latest
-
-# Push to Docker Hub
-docker push yourusername/thiran:latest
-```
-
-### Users run with:
-
-```bash
-docker pull yourusername/thiran:latest
-docker run -it --rm yourusername/thiran:latest "your prompt"
-```
-
----
-
-## Option 5: Homebrew (macOS)
-
-Create a Homebrew formula for macOS users.
-
-### 1. Create a Homebrew tap repository:
-`https://github.com/d1nsh/homebrew-thiran`
-
-### 2. Create Formula:
-
-```ruby
-# thiran.rb
-class Thiran < Formula
-  desc "AI-powered terminal coding assistant"
-  homepage "https://github.com/d1nsh/thiran"
-  url "https://github.com/d1nsh/thiran/archive/v0.1.0.tar.gz"
-  sha256 "..."
-
-  depends_on "node"
-
-  def install
-    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
-    bin.install_symlink Dir["#{libexec}/bin/*"]
-  end
-
-  test do
-    system "#{bin}/thiran", "--version"
-  end
-end
-```
-
-### 3. Users install with:
-
-```bash
+# Or create a separate tap (optional)
 brew tap d1nsh/thiran
 brew install thiran
 ```
 
----
+### Creating a Separate Tap (Optional)
 
-## Comparison
+For a cleaner experience, you can create a dedicated `homebrew-thiran` repository:
 
-| Method | Pros | Cons | Best For |
-|--------|------|------|----------|
-| **npm** | Easy, standard, auto-updates | Requires Node.js | Developers |
-| **pkg binaries** | No Node.js needed, standalone | Large file size (~50MB) | End users |
-| **GitHub Releases** | Easy downloads, version control | Manual updates | All users |
-| **Docker** | Isolated, reproducible | Requires Docker | Server deployments |
-| **Homebrew** | macOS integration | macOS only | Mac users |
+1. Create new repository: `d1nsh/homebrew-thiran`
+2. Move `Formula/thiran.rb` to the new repo
+3. Users can then: `brew tap d1nsh/thiran && brew install thiran`
+
+See `HOMEBREW.md` for detailed Homebrew maintenance guide.
 
 ---
 
-## Recommended Approach
+## Option 3: Standalone Binaries (Planned)
 
-**For maximum reach:**
+**Status:** Currently blocked by ESM compatibility issues with pkg tooling.
 
-1. **Publish to npm** - For developers who have Node.js
-2. **Create binaries with pkg** - For users without Node.js
-3. **GitHub Releases** - Host binaries for easy download
-4. **Add installation instructions to README**
+### Known Issues
 
-### Example Installation Section:
+The `pkg` tool (including `@yao-pkg/pkg` fork) has poor ES Module (ESM) support:
+- Thiran uses ESM (`import/export`)
+- Dependencies like `ink` and `conf` are ESM-only
+- Binaries build but fail at runtime with `ERR_REQUIRE_ESM`
 
-```markdown
-## Installation
+### Solutions Being Evaluated
 
-### Via npm (Recommended)
-\`\`\`bash
-npm install -g thiran
-\`\`\`
+1. **esbuild bundling**: Bundle to CommonJS before packaging
+2. **Alternative tools**: `caxa`, Node.js SEA (Single Executable Applications)
+3. **Defer binaries**: Focus on npm + Homebrew distribution
 
-### Download Binary
-Download the latest binary for your platform from [Releases](https://github.com/d1nsh/thiran/releases):
-- Linux: `thiran-linux`
-- macOS: `thiran-macos`
-- Windows: `thiran-win.exe`
+### If/When Binaries Are Fixed
 
-### From Source
-\`\`\`bash
-git clone https://github.com/d1nsh/thiran.git
-cd thiran
-npm install
-npm run build
-npm link
-\`\`\`
+The GitHub Actions workflow in `.github/workflows/release.yml` is set up to:
+1. Build binaries for Linux, macOS, and Windows
+2. Automatically create GitHub releases when you push a version tag
+3. Upload binaries to the release
+
+To trigger a release:
+```bash
+git tag v0.1.0
+git push origin v0.1.0
 ```
 
 ---
 
-## Continuous Deployment
+## Distribution Checklist
 
-Automate binary creation with GitHub Actions:
+When releasing a new version:
 
-```yaml
-# .github/workflows/release.yml
-name: Release
+### 1. Pre-Release
+- [ ] Update version in `package.json`
+- [ ] Run all tests: `npm test`
+- [ ] Build successfully: `npm run build`
+- [ ] Update CHANGELOG.md (if exists)
+- [ ] Commit all changes
 
-on:
-  push:
-    tags:
-      - 'v*'
+### 2. npm Release
+- [ ] `npm publish --access public`
+- [ ] Verify on npmjs.com: https://www.npmjs.com/package/thiran
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
+### 3. Homebrew Update
+- [ ] Download npm tarball and get SHA256
+- [ ] Update `Formula/thiran.rb` with new version and SHA256
+- [ ] Test formula locally
+- [ ] Commit and push formula update
 
-      - run: npm ci
-      - run: npm run build
-      - run: npm install -g pkg
-      - run: pkg . --targets node18-linux-x64,node18-macos-x64,node18-win-x64
+### 4. Git Tagging
+- [ ] Tag the release: `git tag v0.1.0`
+- [ ] Push tag: `git push origin v0.1.0`
+- [ ] Create GitHub release with notes
 
-      - uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            dist/binaries/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+### 5. Announce
+- [ ] Update README if needed
+- [ ] Announce on social media / blog
+- [ ] Update any documentation sites
+
+---
+
+## Useful Commands
+
+```bash
+# Check what will be included in npm package
+npm pack --dry-run
+
+# View package info
+npm view thiran
+
+# Check who can publish
+npm owner ls thiran
+
+# Test installation locally
+npm install -g .
+
+# Uninstall local test
+npm uninstall -g thiran
 ```
 
-This automatically creates binaries and releases when you push a git tag!
+---
+
+## Resources
+
+- [npm Publishing Guide](https://docs.npmjs.com/cli/v8/commands/npm-publish)
+- [Homebrew Formula Cookbook](https://docs.brew.sh/Formula-Cookbook)
+- [Creating a Homebrew Tap](https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap)
+- [Semantic Versioning](https://semver.org/)

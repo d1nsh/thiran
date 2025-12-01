@@ -14,57 +14,39 @@
 
 ## 🚀 Installation
 
-### Option 1: npm (Recommended for Developers)
+### Option 1: Homebrew (macOS - Recommended)
+
+The easiest way to install on macOS:
+
+```bash
+# Install directly from this repository
+brew install d1nsh/thiran/thiran
+
+# Run
+thiran "your prompt here"
+```
+
+To update:
+```bash
+brew update
+brew upgrade thiran
+```
+
+### Option 2: npm (All Platforms)
 
 If you have Node.js installed:
 
 ```bash
+# Install globally
 npm install -g thiran
-```
 
-Then run:
-```bash
+# Run
 thiran "your prompt here"
 ```
 
-### Option 2: Download Binary (No Node.js Required)
-
-Download the latest binary for your platform from [**Releases**](https://github.com/d1nsh/thiran/releases):
-
-**Linux:**
+To update:
 ```bash
-# Download and rename to 'thiran'
-wget -O thiran https://github.com/d1nsh/thiran/releases/latest/download/thiran-linux
-
-# Make executable
-chmod +x thiran
-
-# Run
-./thiran "your prompt here"
-
-# Optional: Move to PATH for global access
-sudo mv thiran /usr/local/bin/
-```
-
-**macOS:**
-```bash
-# Download and rename to 'thiran'
-curl -L -o thiran https://github.com/d1nsh/thiran/releases/latest/download/thiran-macos
-
-# Make executable
-chmod +x thiran
-
-# Run
-./thiran "your prompt here"
-
-# Optional: Move to PATH for global access
-sudo mv thiran /usr/local/bin/
-```
-
-**Windows:**
-Download `thiran-win.exe` from [Releases](https://github.com/d1nsh/thiran/releases), rename to `thiran.exe`, and run:
-```cmd
-thiran.exe "your prompt here"
+npm update -g thiran
 ```
 
 ### Option 3: From Source
