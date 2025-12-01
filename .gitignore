@@ -10,6 +10,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Binary distributions (keep source, ignore compiled binaries)
+dist/binaries/
+
 # Environment variables
 .env
 .env.local
