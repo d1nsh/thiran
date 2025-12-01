@@ -11,7 +11,7 @@ import { BaseProvider } from './base.js';
 
 export class GeminiProvider extends BaseProvider {
   name = 'gemini';
-  defaultModel = 'gemini-2.0-flash';
+  defaultModel = 'gemini-2.5-flash';
 
   private client: GoogleGenerativeAI;
 
@@ -99,6 +99,11 @@ export class GeminiProvider extends BaseProvider {
   async listModels(): Promise<string[]> {
     // Gemini doesn't have a simple models list endpoint, return known models
     return [
+      'gemini-3-pro',
+      'gemini-3-pro-image',
+      'gemini-2.5-pro',
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
       'gemini-2.0-flash',
       'gemini-2.0-flash-lite',
       'gemini-1.5-pro',

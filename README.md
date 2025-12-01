@@ -65,14 +65,18 @@ thiran config --set anthropicApiKey=your-api-key-here
 ```
 
 **Supported Models**:
-- `claude-3-5-sonnet-20241022` (default)
-- `claude-3-5-haiku-20241022`
-- `claude-3-opus-20240229`
+- `claude-opus-4-5-20251101` (newest - best for coding & agents, Nov 2025)
+- `claude-haiku-4-5` (fast & efficient, Oct 2025)
+- `claude-sonnet-4-5-20250929` (default - excellent coding, Sep 2025)
+- `claude-opus-4-1` (agentic tasks, Aug 2025)
+- `claude-sonnet-4-20250514` / `claude-opus-4-20250514` (May 2025)
+- `claude-3-5-sonnet-20241022` (Claude 3.5 Sonnet)
+- `claude-3-5-haiku-20241022` (Claude 3.5 Haiku)
 
 **Set as default provider**:
 ```bash
 thiran config --set provider=anthropic
-thiran config --set model=claude-3-5-sonnet-20241022
+thiran config --set model=claude-sonnet-4-5-20250929
 ```
 
 #### 2. OpenAI (GPT)
@@ -88,15 +92,18 @@ thiran config --set openaiApiKey=your-api-key-here
 ```
 
 **Supported Models**:
-- `gpt-4o` (default)
-- `gpt-4o-mini`
-- `gpt-4-turbo`
-- `gpt-3.5-turbo`
+- `gpt-5` (default - newest flagship, Aug 2025)
+- `gpt-5-mini` / `gpt-5-nano` (faster, more affordable)
+- `gpt-5.1` / `gpt-5.1-mini` / `gpt-5.1-nano` (latest iteration)
+- `gpt-4.1` / `gpt-4.1-mini` / `gpt-4.1-nano` (April 2025)
+- `gpt-4o` / `gpt-4o-mini` (GPT-4 Omni)
+- `gpt-4-turbo` / `gpt-4` (GPT-4 series)
+- `gpt-3.5-turbo` (GPT-3.5)
 
 **Set as default provider**:
 ```bash
 thiran config --set provider=openai
-thiran config --set model=gpt-4o
+thiran config --set model=gpt-5
 ```
 
 #### 3. Google Gemini
@@ -114,14 +121,18 @@ thiran config --set googleApiKey=your-api-key-here
 ```
 
 **Supported Models**:
-- `gemini-2.0-flash-exp` (default)
-- `gemini-1.5-pro`
-- `gemini-1.5-flash`
+- `gemini-3-pro` (newest - reasoning & coding, Nov 2025)
+- `gemini-3-pro-image` (image generation with reasoning)
+- `gemini-2.5-pro` (default - most powerful, adaptive thinking)
+- `gemini-2.5-flash` (best price-performance)
+- `gemini-2.5-flash-lite` (fastest, cost-efficient)
+- `gemini-2.0-flash` / `gemini-2.0-flash-lite` (Jan 2025)
+- `gemini-1.5-pro` / `gemini-1.5-flash` / `gemini-1.5-flash-8b`
 
 **Set as default provider**:
 ```bash
 thiran config --set provider=gemini
-thiran config --set model=gemini-2.0-flash-exp
+thiran config --set model=gemini-2.5-flash
 ```
 
 #### 4. Ollama (Local Models)
