@@ -6,6 +6,7 @@ const SLASH_COMMANDS = [
   { command: '/help', description: 'Show available commands' },
   { command: '/models', description: 'Select a model' },
   { command: '/providers', description: 'Select a provider' },
+  { command: '/mcp', description: 'Manage MCP servers' },
   { command: '/search', description: 'Search for Ollama models' },
   { command: '/clear', description: 'Clear conversation history' },
   { command: '/exit', description: 'Exit Thiran' },
