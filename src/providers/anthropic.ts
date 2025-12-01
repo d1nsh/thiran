@@ -95,7 +95,7 @@ export class AnthropicProvider extends BaseProvider {
     // Anthropic doesn't have a models endpoint, return known models
     return [
       'claude-opus-4-5-20251101',
-      'claude-haiku-4-5',
+      'claude-haiku-4-5-20251001',
       'claude-sonnet-4-5-20250929',
       'claude-opus-4-1',
       'claude-sonnet-4-20250514',

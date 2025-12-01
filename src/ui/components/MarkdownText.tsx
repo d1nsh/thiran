@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { Box, Text } from 'ink';
 import { highlight } from 'cli-highlight';
 
@@ -94,7 +94,8 @@ function highlightCode(code: string, language: string): string {
   }
 }
 
-export const MarkdownText: React.FC<MarkdownTextProps> = ({ children }) => {
+// Memoized to prevent re-renders when children haven't changed
+export const MarkdownText: React.FC<MarkdownTextProps> = memo(({ children }) => {
   const segments = useMemo(() => parseText(children || ''), [children]);
 
   return (
@@ -134,4 +135,4 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ children }) => {
       })}
     </Box>
   );
-};
+});

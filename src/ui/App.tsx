@@ -122,6 +122,9 @@ export const App: React.FC<AppProps> = ({
   const currentToolCallsRef = useRef<ToolCallState[]>([]);
   const cancelledRef = useRef(false);
 
+  // Batching ref for streaming text updates to reduce flickering
+  const pendingTextUpdateRef = useRef<NodeJS.Timeout | null>(null);
+
   // Message ID counter for Static component
   const messageIdRef = useRef(0);
 
@@ -290,7 +293,14 @@ export const App: React.FC<AppProps> = ({
           if (cancelledRef.current) return;
           setIsThinking(false);
           currentTextRef.current += text;
-          setStreamingText(prev => prev + text);
+
+          // Batch streaming text updates to reduce flickering (update every 50ms max)
+          if (!pendingTextUpdateRef.current) {
+            pendingTextUpdateRef.current = setTimeout(() => {
+              setStreamingText(currentTextRef.current);
+              pendingTextUpdateRef.current = null;
+            }, 50);
+          }
         },
         onToolCallStart: (toolCall: ToolCall) => {
           if (cancelledRef.current) return;
@@ -317,6 +327,11 @@ export const App: React.FC<AppProps> = ({
         },
         onError: (error: Error) => {
           if (cancelledRef.current) return;
+          // Clear any pending batched update
+          if (pendingTextUpdateRef.current) {
+            clearTimeout(pendingTextUpdateRef.current);
+            pendingTextUpdateRef.current = null;
+          }
           setStreamingText(prev => prev + `\n\nError: ${error.message}`);
           setIsThinking(false);
           setShowInput(true);
@@ -324,6 +339,12 @@ export const App: React.FC<AppProps> = ({
         },
         onDone: () => {
           if (cancelledRef.current) return;
+
+          // Clear any pending batched update
+          if (pendingTextUpdateRef.current) {
+            clearTimeout(pendingTextUpdateRef.current);
+            pendingTextUpdateRef.current = null;
+          }
 
           // Save to message history
           const finalText = currentTextRef.current;

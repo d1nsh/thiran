@@ -226,8 +226,10 @@ async function main() {
           onConfigChange: handleConfigChange,
         }),
         {
-          // Reduce flickering by patching console and optimizing output
+          // Reduce flickering in iTerm2 and other terminals
           patchConsole: false,
+          // Disable debug mode which can cause extra renders
+          debug: false,
         }
       );
 
