@@ -14,16 +14,58 @@
 
 ## 🚀 Installation
 
-### Prerequisites
+### Option 1: npm (Recommended for Developers)
 
-- Node.js >= 18.0.0
-- npm or yarn
+If you have Node.js installed:
 
-### Install from Source
+```bash
+npm install -g thiran
+```
+
+Then run:
+```bash
+thiran "your prompt here"
+```
+
+### Option 2: Download Binary (No Node.js Required)
+
+Download the latest binary for your platform from [**Releases**](https://github.com/d1nsh/thiran/releases):
+
+**Linux:**
+```bash
+# Download
+wget https://github.com/d1nsh/thiran/releases/latest/download/thiran-linux
+
+# Make executable
+chmod +x thiran-linux
+
+# Run
+./thiran-linux "your prompt here"
+```
+
+**macOS:**
+```bash
+# Download
+curl -L -o thiran-macos https://github.com/d1nsh/thiran/releases/latest/download/thiran-macos
+
+# Make executable
+chmod +x thiran-macos
+
+# Run
+./thiran-macos "your prompt here"
+```
+
+**Windows:**
+Download `thiran-win.exe` from [Releases](https://github.com/d1nsh/thiran/releases) and run it in Command Prompt or PowerShell:
+```cmd
+thiran-win.exe "your prompt here"
+```
+
+### Option 3: From Source
 
 ```bash
 # Clone the repository
-git clone git@github.com:d1nsh/thiran.git
+git clone https://github.com/d1nsh/thiran.git
 cd thiran
 
 # Install dependencies
@@ -32,17 +74,10 @@ npm install
 # Build the project
 npm run build
 
-# Link globally (optional)
+# Link globally
 npm link
-```
 
-### Run Locally
-
-```bash
-# After building
-node dist/cli/index.js
-
-# Or if linked globally
+# Run
 thiran
 ```
 
