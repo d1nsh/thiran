@@ -4,7 +4,7 @@ import { BaseProvider } from './base.js';
 
 export class AnthropicProvider extends BaseProvider {
   name = 'anthropic';
-  defaultModel = 'claude-sonnet-4-20250514';
+  defaultModel = 'claude-sonnet-4-5-20250929';
 
   private client: Anthropic;
 
@@ -94,6 +94,10 @@ export class AnthropicProvider extends BaseProvider {
   async listModels(): Promise<string[]> {
     // Anthropic doesn't have a models endpoint, return known models
     return [
+      'claude-opus-4-5-20251101',
+      'claude-haiku-4-5',
+      'claude-sonnet-4-5-20250929',
+      'claude-opus-4-1',
       'claude-sonnet-4-20250514',
       'claude-opus-4-20250514',
       'claude-3-5-sonnet-20241022',

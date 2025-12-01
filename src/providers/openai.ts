@@ -4,7 +4,7 @@ import { BaseProvider } from './base.js';
 
 export class OpenAIProvider extends BaseProvider {
   name = 'openai';
-  defaultModel = 'gpt-4o';
+  defaultModel = 'gpt-5';
 
   private client: OpenAI;
 
@@ -123,7 +123,22 @@ export class OpenAIProvider extends BaseProvider {
         .sort();
     } catch {
       // Return known models if API call fails
-      return ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'];
+      return [
+        'gpt-5',
+        'gpt-5-mini',
+        'gpt-5-nano',
+        'gpt-5.1',
+        'gpt-5.1-mini',
+        'gpt-5.1-nano',
+        'gpt-4.1',
+        'gpt-4.1-mini',
+        'gpt-4.1-nano',
+        'gpt-4o',
+        'gpt-4o-mini',
+        'gpt-4-turbo',
+        'gpt-4',
+        'gpt-3.5-turbo',
+      ];
     }
   }
 
