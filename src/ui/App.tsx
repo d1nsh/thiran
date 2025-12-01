@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
-import { Box, Text, useInput, useApp, useStdout, Static } from 'ink';
+import { Box, Text, useInput, useApp, useStdout } from 'ink';
 import { Spinner, ToolCallDisplay, PermissionPrompt, MarkdownText, Banner, AutocompleteInput } from './components/index.js';
 import type { ToolCall, PermissionAction, ThiranConfig } from '../types.js';
 import type { Agent, AgentCallbacks } from '../core/agent.js';
@@ -121,11 +121,6 @@ export const App: React.FC<AppProps> = ({
   const currentTextRef = useRef('');
   const currentToolCallsRef = useRef<ToolCallState[]>([]);
   const cancelledRef = useRef(false);
-
-  // Batching refs for streaming updates to reduce flickering
-  const pendingTextUpdateRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingToolUpdateRef = useRef<NodeJS.Timeout | null>(null);
-  const BATCH_INTERVAL = 100; // ms between UI updates
 
   // Message ID counter for Static component
   const messageIdRef = useRef(0);
@@ -295,28 +290,14 @@ export const App: React.FC<AppProps> = ({
           if (cancelledRef.current) return;
           setIsThinking(false);
           currentTextRef.current += text;
-
-          // Batch streaming text updates to reduce flickering
-          if (!pendingTextUpdateRef.current) {
-            pendingTextUpdateRef.current = setTimeout(() => {
-              setStreamingText(currentTextRef.current);
-              pendingTextUpdateRef.current = null;
-            }, BATCH_INTERVAL);
-          }
+          setStreamingText(prev => prev + text);
         },
         onToolCallStart: (toolCall: ToolCall) => {
           if (cancelledRef.current) return;
           setIsThinking(false);
           const newToolCall = { toolCall, status: 'running' as const };
           currentToolCallsRef.current = [...currentToolCallsRef.current, newToolCall];
-
-          // Batch tool call updates to reduce flickering
-          if (!pendingToolUpdateRef.current) {
-            pendingToolUpdateRef.current = setTimeout(() => {
-              setStreamingToolCalls([...currentToolCallsRef.current]);
-              pendingToolUpdateRef.current = null;
-            }, BATCH_INTERVAL);
-          }
+          setStreamingToolCalls(prev => [...prev, newToolCall]);
         },
         onToolCallEnd: (toolCall: ToolCall, result: string) => {
           if (cancelledRef.current) return;
@@ -326,43 +307,23 @@ export const App: React.FC<AppProps> = ({
               ? { ...tc, status: (isError ? 'error' : 'completed') as 'error' | 'completed', result }
               : tc
           );
-
-          // Batch tool call updates to reduce flickering
-          if (!pendingToolUpdateRef.current) {
-            pendingToolUpdateRef.current = setTimeout(() => {
-              setStreamingToolCalls([...currentToolCallsRef.current]);
-              pendingToolUpdateRef.current = null;
-            }, BATCH_INTERVAL);
-          }
+          setStreamingToolCalls(prev =>
+            prev.map(tc =>
+              tc.toolCall.id === toolCall.id
+                ? { ...tc, status: (isError ? 'error' : 'completed') as 'error' | 'completed', result }
+                : tc
+            )
+          );
         },
         onError: (error: Error) => {
           if (cancelledRef.current) return;
-          // Clear any pending batched updates
-          if (pendingTextUpdateRef.current) {
-            clearTimeout(pendingTextUpdateRef.current);
-            pendingTextUpdateRef.current = null;
-          }
-          if (pendingToolUpdateRef.current) {
-            clearTimeout(pendingToolUpdateRef.current);
-            pendingToolUpdateRef.current = null;
-          }
-          setStreamingText(currentTextRef.current + `\n\nError: ${error.message}`);
+          setStreamingText(prev => prev + `\n\nError: ${error.message}`);
           setIsThinking(false);
           setShowInput(true);
           setIsProcessing(false);
         },
         onDone: () => {
           if (cancelledRef.current) return;
-
-          // Clear any pending batched updates
-          if (pendingTextUpdateRef.current) {
-            clearTimeout(pendingTextUpdateRef.current);
-            pendingTextUpdateRef.current = null;
-          }
-          if (pendingToolUpdateRef.current) {
-            clearTimeout(pendingToolUpdateRef.current);
-            pendingToolUpdateRef.current = null;
-          }
 
           // Save to message history
           const finalText = currentTextRef.current;
@@ -635,15 +596,11 @@ export const App: React.FC<AppProps> = ({
         </Box>
       )}
 
-      {/* Completed messages using Static to prevent re-renders */}
-      <Static items={messages}>
-        {(msg) => (
-          <MessageItem key={msg.id} msg={msg} />
-        )}
-      </Static>
-
-      {/* Dynamic content that may change */}
+      {/* All messages rendered with memoization to prevent unnecessary re-renders */}
       <Box flexDirection="column">
+        {messages.map((msg) => (
+          <MessageItem key={msg.id} msg={msg} />
+        ))}
 
         {/* Processing indicator - shown while thinking */}
         {isThinking && (

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { Text } from 'ink';
 import InkSpinner from 'ink-spinner';
 
@@ -6,9 +6,7 @@ interface SpinnerProps {
   label?: string;
 }
 
-// Memoized spinner to prevent unnecessary re-renders
-// The spinner's internal animation is handled by ink-spinner itself
-export const Spinner: React.FC<SpinnerProps> = memo(({ label }) => {
+export const Spinner: React.FC<SpinnerProps> = ({ label }) => {
   return (
     <Text>
       <Text color="cyan">
@@ -17,4 +15,4 @@ export const Spinner: React.FC<SpinnerProps> = memo(({ label }) => {
       {label && <Text> {label}</Text>}
     </Text>
   );
-});
+};

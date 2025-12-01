@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React from 'react';
 import { Box, Text } from 'ink';
 import type { ToolCall as ToolCallType } from '../../types.js';
 import { Spinner } from './Spinner.js';
@@ -9,8 +9,7 @@ interface ToolCallProps {
   result?: string;
 }
 
-// Memoized to prevent re-renders when props haven't changed
-export const ToolCallDisplay: React.FC<ToolCallProps> = memo(({
+export const ToolCallDisplay: React.FC<ToolCallProps> = ({
   toolCall,
   status,
   result,
@@ -84,4 +83,4 @@ export const ToolCallDisplay: React.FC<ToolCallProps> = memo(({
       )}
     </Box>
   );
-});
+};
