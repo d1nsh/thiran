@@ -33,7 +33,7 @@ export function getProviderModels(provider: string): string[] {
       return [
         'claude-sonnet-4-5-20250929',
         'claude-opus-4-5-20251101',
-        'claude-haiku-4-5-20250929',
+        'claude-haiku-4-5-20251001',
         'claude-sonnet-4-20250514',
         'claude-opus-4-20250514',
       ];
