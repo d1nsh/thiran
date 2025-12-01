@@ -33,32 +33,38 @@ Download the latest binary for your platform from [**Releases**](https://github.
 
 **Linux:**
 ```bash
-# Download
-wget https://github.com/d1nsh/thiran/releases/latest/download/thiran-linux
+# Download and rename to 'thiran'
+wget -O thiran https://github.com/d1nsh/thiran/releases/latest/download/thiran-linux
 
 # Make executable
-chmod +x thiran-linux
+chmod +x thiran
 
 # Run
-./thiran-linux "your prompt here"
+./thiran "your prompt here"
+
+# Optional: Move to PATH for global access
+sudo mv thiran /usr/local/bin/
 ```
 
 **macOS:**
 ```bash
-# Download
-curl -L -o thiran-macos https://github.com/d1nsh/thiran/releases/latest/download/thiran-macos
+# Download and rename to 'thiran'
+curl -L -o thiran https://github.com/d1nsh/thiran/releases/latest/download/thiran-macos
 
 # Make executable
-chmod +x thiran-macos
+chmod +x thiran
 
 # Run
-./thiran-macos "your prompt here"
+./thiran "your prompt here"
+
+# Optional: Move to PATH for global access
+sudo mv thiran /usr/local/bin/
 ```
 
 **Windows:**
-Download `thiran-win.exe` from [Releases](https://github.com/d1nsh/thiran/releases) and run it in Command Prompt or PowerShell:
+Download `thiran-win.exe` from [Releases](https://github.com/d1nsh/thiran/releases), rename to `thiran.exe`, and run:
 ```cmd
-thiran-win.exe "your prompt here"
+thiran.exe "your prompt here"
 ```
 
 ### Option 3: From Source

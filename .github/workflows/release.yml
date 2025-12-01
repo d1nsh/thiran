@@ -34,16 +34,22 @@ jobs:
       - name: Create binaries
         run: npm run package:all
 
-      - name: List binaries
-        run: ls -lah dist/binaries/
+      - name: Prepare release binaries
+        run: |
+          mkdir -p dist/release
+          cp dist/binaries/linux/thiran dist/release/thiran-linux
+          cp dist/binaries/macos/thiran dist/release/thiran-macos
+          cp dist/binaries/win/thiran.exe dist/release/thiran-win.exe
+          chmod +x dist/release/thiran-linux dist/release/thiran-macos
+          ls -lah dist/release/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/binaries/thiran-linux
-            dist/binaries/thiran-macos
-            dist/binaries/thiran-win.exe
+            dist/release/thiran-linux
+            dist/release/thiran-macos
+            dist/release/thiran-win.exe
           generate_release_notes: true
           draft: false
           prerelease: false
@@ -54,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: binaries
-          path: dist/binaries/
+          path: dist/release/
