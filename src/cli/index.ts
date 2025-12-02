@@ -7,8 +7,9 @@ import { App } from '../ui/App.js';
 import { Agent } from '../core/agent.js';
 import { ConfigManager } from '../core/config.js';
 import { createProvider, listProviders } from '../providers/index.js';
-import { createTools } from '../tools/index.js';
+import { createTools, createToolsWithMCP } from '../tools/index.js';
 import { DefaultPermissionManager } from '../security/permissions.js';
+import { MCPClientManager } from '../mcp/index.js';
 import type { PermissionAction, ThiranConfig, LLMProvider } from '../types.js';
 
 const VERSION = '0.1.0';
@@ -137,8 +138,32 @@ async function main() {
         process.exit(1);
       }
 
-      // Create tools
-      const tools = createTools();
+      // Initialize MCP client manager
+      const mcpManager = new MCPClientManager();
+
+      // Connect to MCP servers if configured
+      if (config.mcpServers && config.mcpServers.length > 0) {
+        const enabledServers = config.mcpServers.filter(s => s.enabled !== false);
+        if (enabledServers.length > 0) {
+          if (!options.nonInteractive) {
+            console.log(`Connecting to ${enabledServers.length} MCP server(s)...`);
+          }
+          try {
+            await mcpManager.connectAll(config.mcpServers);
+            const connectedCount = mcpManager.getConnectedCount();
+            if (!options.nonInteractive && connectedCount > 0) {
+              console.log(`Connected to ${connectedCount} MCP server(s)`);
+            }
+          } catch {
+            // Errors are logged by MCPClientManager, continue with available servers
+          }
+        }
+      }
+
+      // Create tools (including MCP tools if any)
+      const tools = mcpManager.hasServers()
+        ? createToolsWithMCP(mcpManager)
+        : createTools();
 
       // Permission prompt handler
       const permissionPrompt = async (
@@ -224,6 +249,7 @@ async function main() {
           config,
           onPermissionRequest,
           onConfigChange: handleConfigChange,
+          mcpManager: mcpManager.hasServers() ? mcpManager : undefined,
         }),
         {
           // Reduce flickering by patching console and optimizing output
@@ -232,6 +258,9 @@ async function main() {
       );
 
       await waitUntilExit();
+
+      // Graceful shutdown: disconnect MCP servers
+      await mcpManager.disconnectAll();
     });
 
   await program.parseAsync();

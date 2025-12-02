@@ -15,6 +15,7 @@ const CONFIG_SCHEMA = {
   maxContextTokens: { type: 'number', default: 100000 },
   allowedPaths: { type: 'array', default: [] },
   blockedCommands: { type: 'array', default: [] },
+  mcpServers: { type: 'array', default: [] },
 } as const;
 
 export class ConfigManager {
@@ -85,6 +86,8 @@ export class ConfigManager {
         ...base.blockedCommands,
         ...(override.blockedCommands || []),
       ],
+      // MCP servers from override replace base (project config takes precedence)
+      mcpServers: override.mcpServers || base.mcpServers || [],
     };
   }
 
