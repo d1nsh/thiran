@@ -217,6 +217,8 @@ async function main() {
           },
         });
 
+        // Cleanup: disconnect MCP servers before exiting non-interactive mode
+        await mcpManager.disconnectAll();
         return;
       }
 
